@@ -1,0 +1,63 @@
+{
+  "app_id": "com.sipeed.voice_bridge",
+  "name": "Voice Bridge",
+  "creator": "Sipeed",
+  "create_time": "2026-07-28",
+  "version": "0.2.0",
+  "desc": "NanoKVM and Qwen realtime voice bridge.",
+  "category": "AI",
+  "pre_script": "pre-install.sh",
+  "env": {
+    "NANOKVM_MCP_KEY": {
+      "label": "NanoKVM MCP API key",
+      "description": "API key configured by the local NanoKVM MCP service.",
+      "required": true,
+      "secret": true
+    },
+    "QWEN_WORKSPACE_ID": {
+      "label": "Qwen Workspace ID",
+      "required": true
+    },
+    "QWEN_API_KEY": {
+      "label": "Qwen API key",
+      "required": true,
+      "secret": true
+    },
+    "QWEN_REGION": {
+      "label": "Qwen region",
+      "required": true,
+      "default": "cn-beijing"
+    },
+    "QWEN_MODEL": {
+      "label": "Qwen realtime model",
+      "required": true,
+      "default": "qwen-audio-3.0-realtime-flash"
+    },
+    "QWEN_VOICE": {
+      "label": "Qwen voice",
+      "required": true,
+      "default": "longanqian"
+    },
+    "INTERACT_TYPE": {
+      "label": "Turn detection",
+      "description": "Qwen turn detection mode: server_vad or smart_turn.",
+      "required": true,
+      "default": "server_vad"
+    },
+    "QWEN_SESSION_ROTATE_SECONDS": {
+      "label": "Session rotation interval",
+      "description": "Seconds before refreshing only the Qwen WebSocket session.",
+      "required": true,
+      "default": "120"
+    },
+    "QWEN_INSTRUCTIONS": {
+      "label": "Assistant instructions",
+      "required": true,
+      "default": "You are a concise voice assistant."
+    },
+    "QWEN_INSTRUCTIONS_B64": {
+      "label": "Base64 instructions",
+      "description": "Optional UTF-8 Base64 instructions; overrides QWEN_INSTRUCTIONS when set."
+    }
+  }
+}

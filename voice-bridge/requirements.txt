@@ -1,0 +1,3 @@
+aiortc==1.15.0
+websockets==16.0
+

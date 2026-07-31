@@ -1,0 +1,8 @@
+{
+  "app_id": "com.sipeed.conways_game_of_life",
+  "name": "Conway",
+  "creator": "NanoKVM Team",
+  "create_time": "2026-07-01",
+  "version": "1.1.0",
+  "desc": "Conway's Game of Life with classic patterns."
+}
