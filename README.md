@@ -27,7 +27,7 @@ The implementation is `appbase.py`; the public type contract is `appbase.pyi`. K
 - A readable evdev touch device, normally `/dev/input/event0`.
 - Python 3 with the standard-library modules used by `appbase` (`mmap`, `fcntl`, `struct`, `select`, `os`, `time`, and typing support).
 - `launcher.enabled=true` in [`kvm_ui.toml`](../configuration.md#launcher).
-- App directories, plus shared `appbase.py` and `appbase.pyi`, in the configured `launcher.apps_dir`, default `/etc/kvm/apps`.
+- App directories, plus shared `appbase.py` and `appbase.pyi`, in the configured `launcher.apps_dir`, default `/kvmcomm/apps`.
 
 The host refuses to start an App session when touch is disabled or unavailable because it needs touch input for the reserved exit gesture.
 
@@ -413,8 +413,8 @@ Repository examples:
 When running an App manually, set rotation explicitly or the framebuffer will use `0`:
 
 ```bash
-PYTHONPATH=/etc/kvm/apps APPBASE_FB_ROTATE=90 \
-  python3 /etc/kvm/apps/my-app/main.py
+PYTHONPATH=/kvmcomm/apps APPBASE_FB_ROTATE=90 \
+  python3 /kvmcomm/apps/my-app/main.py
 ```
 
 Manual execution while the host UI is active causes both processes to draw/read the same devices without normal Launcher supervision. Use the Apps page for expected lifecycle behavior.
@@ -424,13 +424,13 @@ Manual execution while the host UI is active causes both processes to draw/read 
 Copy the shared SDK and complete App directory into the configured directory:
 
 ```bash
-scp apps/appbase.py apps/appbase.pyi root@<device-ip>:/etc/kvm/apps/
-scp -r apps/my-app root@<device-ip>:/etc/kvm/apps/
+scp apps/appbase.py apps/appbase.pyi root@<device-ip>:/kvmcomm/apps/
+scp -r apps/my-app root@<device-ip>:/kvmcomm/apps/
 ```
 
 For a single new App, existing `appbase.py`/`appbase.pyi` on the device may be reused only when they match the App's expected SDK contract. Copy the whole App directory so resource paths relative to `main.py` remain intact.
 
-Wait up to 10 seconds after deployment for the Apps list to refresh automatically. This project does not define a standalone package/install command for `/etc/kvm/apps`.
+Wait up to 10 seconds after deployment for the Apps list to refresh automatically. This project does not define a standalone package/install command for `/kvmcomm/apps`.
 
 ## Debug screenshots
 

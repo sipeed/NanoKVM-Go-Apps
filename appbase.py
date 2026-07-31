@@ -25,9 +25,9 @@ Two env knobs, both optional:
                       so screen orientation can be calibrated on-device without code
                       changes. Default 0.
 
-Apps live in one directory per App under /etc/kvm/apps. Each directory contains
+Apps live in one directory per App under /kvmcomm/apps. Each directory contains
 main.py, app.json, and optional resources. The shared appbase.py and
-appbase.pyi remain in /etc/kvm/apps.
+appbase.pyi remain in /kvmcomm/apps.
 """
 
 from __future__ import annotations

@@ -12,7 +12,7 @@ NanoKVM Python App 是由 `kvm_ui` Apps 页面启动的全屏应用。App 使用
 - NanoKVM framebuffer，默认 `/dev/fb0`；
 - NanoKVM 触摸设备，默认 `/dev/input/event0`；
 - `kvm_ui.toml` 中 `launcher.enabled = true`；
-- App 安装目录默认为 `/etc/kvm/apps`。
+- App 安装目录默认为 `/kvmcomm/apps`。
 
 共享文件 `appbase.py` 是 SDK 实现，`appbase.pyi` 是公共类型声明。修改公共类、函数、字段或返回类型时，必须同步维护二者。
 
@@ -359,8 +359,8 @@ def visible_rect(fb):
 手动运行时必须设置正确方向：
 
 ```bash
-PYTHONPATH=/etc/kvm/apps APPBASE_FB_ROTATE=90 \
-  python3 /etc/kvm/apps/hello-world/main.py
+PYTHONPATH=/kvmcomm/apps APPBASE_FB_ROTATE=90 \
+  python3 /kvmcomm/apps/hello-world/main.py
 ```
 
 主界面运行时手动启动 App 会导致两个进程同时操作 framebuffer 和触摸设备。正常使用及设备验证应从 Apps 页面启动。
@@ -388,8 +388,8 @@ CC=clang CXX=clang++ ./builder.sh simulator
 复制共享 SDK 和完整 App 目录：
 
 ```bash
-scp apps/appbase.py apps/appbase.pyi root@DEVICE_IP:/etc/kvm/apps/
-scp -r apps/hello-world root@DEVICE_IP:/etc/kvm/apps/
+scp apps/appbase.py apps/appbase.pyi root@DEVICE_IP:/kvmcomm/apps/
+scp -r apps/hello-world root@DEVICE_IP:/kvmcomm/apps/
 ```
 
 资源文件应随 App 目录一起复制。部署完成后等待最多 10 秒，Apps 列表会自动刷新。
