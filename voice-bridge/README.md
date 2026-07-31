@@ -10,7 +10,7 @@ Qwen, WebRTC, and the MCP media session.
 It targets the current NanoKVM Go App SDK directory layout:
 
 ```text
-/etc/kvm/apps/
+/kvmcomm/apps/
 ├── appbase.py
 ├── appbase.pyi
 └── voice-bridge/
@@ -31,7 +31,7 @@ stops with an update message instead of installing an incompatible App.
 - Microphone: Qwen PCM S16LE/24 kHz/mono, sent as an aiortc audio track. aiortc
   performs WebRTC Opus encoding and RTP pacing.
 - Configuration: the `env` table in `app.json`, edited from web Settings > Apps.
-- Python packages: isolated under `/etc/kvm/apps/voice-bridge/python`.
+- Python packages: isolated under `/kvmcomm/apps/voice-bridge/python`.
 - App metadata: `voice-bridge/app.json`; runtime entry: `voice-bridge/main.py`.
 - Only the Qwen WebSocket rotates every 120 seconds by default, before the
   Qwen response-idle timeout. The MCP media session and WebRTC tracks stay

@@ -9,7 +9,7 @@
 本应用使用最新版 NanoKVM Go Apps 目录规范：
 
 ```text
-/etc/kvm/apps/
+/kvmcomm/apps/
 ├── appbase.py
 ├── appbase.pyi
 └── voice-bridge/
@@ -40,7 +40,7 @@
 - 麦克风方向：Qwen 输出 S16LE、24 kHz、单声道 PCM，由 aiortc 转换并通过 WebRTC Opus/RTP 发送；
 - aiortc 负责 Opus 编码和 RTP 发送节拍；
 - 配置：`app.json` 内的 `env` 表，由网页 Settings > Apps 编辑；
-- Python 依赖安装在 App 私有目录 `/etc/kvm/apps/voice-bridge/python`，不覆盖系统 Python 包。
+- Python 依赖安装在 App 私有目录 `/kvmcomm/apps/voice-bridge/python`，不覆盖系统 Python 包。
 
 MCP 只负责认证、创建和关闭短期媒体会话，连续音频始终通过 WebRTC 传输。
 
@@ -54,9 +54,9 @@ Python 依赖安装到 App 私有 `python/` 目录。用户不需要使用 SSH�
 设备上的最终目录为：
 
 ```text
-/etc/kvm/apps/voice-bridge/app.json
-/etc/kvm/apps/voice-bridge/main.py
-/etc/kvm/apps/voice-bridge/python/
+/kvmcomm/apps/voice-bridge/app.json
+/kvmcomm/apps/voice-bridge/main.py
+/kvmcomm/apps/voice-bridge/python/
 ```
 
 ## 配置
@@ -105,7 +105,7 @@ Qwen WebSocket          单独轮换
 
 ### Apps 页面没有 Voice Bridge
 
-确认 `/etc/kvm/apps/voice-bridge/main.py`、`app.json` 和共享 `appbase.py` 都存在，并确认 `launcher.enabled = true`，然后等待最多 10 秒自动刷新。
+确认 `/kvmcomm/apps/voice-bridge/main.py`、`app.json` 和共享 `appbase.py` 都存在，并确认 `launcher.enabled = true`，然后等待最多 10 秒自动刷新。
 
 ### Qwen 能识别但被控机听不到回复
 
