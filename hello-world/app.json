@@ -1,0 +1,9 @@
+{
+  "app_id": "com.example.hello_world",
+  "name": "Hello World",
+  "creator": "Your Name",
+  "create_time": "2026-07-30",
+  "version": "1.0.0",
+  "desc": "A minimal NanoKVM App.",
+  "category": "demo"
+}
