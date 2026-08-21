@@ -224,13 +224,12 @@ Raw Apps do not use the C++ UI's ST7789P3 RGB565 flush wrapper. That wrapper is 
 
 The host and child observe separate reads of the same evdev stream. The host reserves this gesture:
 
-1. press inside the logical left-edge zone (`launcher.exit_gesture_zone_px`, default `40`);
-2. swipe right to about 45% of screen width;
-3. keep holding while the host pauses the child and fills a progress strip for `launcher.exit_gesture_hold_ms` (default `1200ms`);
-4. release at full progress to terminate the App;
-5. release early or slide back to cancel, restore overwritten pixels, and resume the child.
+1. press inside either logical edge zone (`launcher.exit_gesture_zone_px`, default `40`);
+2. swipe inward by at least one eighth of the screen width from the touch-down point;
+3. release the initiating swipe after the host pauses the child, exclusively grabs touch input, and opens the centered confirmation;
+4. tap `YES` to terminate the App, or `NO` to restore the screen and resume it.
 
-Because evdev readers each receive events, an App may observe the initial edge press before the host pauses it. Treat the left-edge zone as reserved: avoid destructive one-tap controls there and do not implement another competing exit gesture.
+An edge tap or a shorter swipe does not open the confirmation. Confirmation taps are delivered only to the host and cannot be observed by the App. Because evdev readers each receive events before the exclusive grab begins, an App may still observe the initial edge press. Treat both edge zones as reserved: avoid destructive one-tap controls there and do not implement another competing exit gesture.
 
 ## SDK reference
 
