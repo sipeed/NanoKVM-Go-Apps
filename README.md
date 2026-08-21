@@ -62,7 +62,7 @@ Example `app.json`:
 ```json
 {
   "app_id": "com.example.hello_world",
-  "name": "Hello",
+  "name": "Hello World",
   "creator": "Your Name",
   "create_time": "2026-07-01",
   "version": "1.0.0",
@@ -119,6 +119,13 @@ def main(ctx):
 if __name__ == "__main__":
     main()
 ```
+
+This Hello World example does not need to implement its own exit gesture. To
+leave it, press either logical edge, swipe inward by at least one eighth of
+the screen width, and release after the host opens the centered confirmation.
+Tap `YES` to exit or `NO` to continue running the example. An edge tap or a
+short swipe has no effect; while the confirmation is visible, its buttons are
+handled exclusively by the host.
 
 A normal App has:
 
