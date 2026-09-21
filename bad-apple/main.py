@@ -1,56 +1,71 @@
 #!/usr/bin/env python3
 """Play a preprocessed, silent Bad Apple animation on the framebuffer."""
 
+import lzma
 import struct
 import time
-import zlib
 from pathlib import Path
 
 from appbase import BLACK, WHITE, app
 
 APP_DIR = Path(__file__).resolve().parent
 FRAME_PATH = APP_DIR / "assets" / "frames.bin"
-MAGIC = b"BAP1"
-HEADER = struct.Struct("<4sHHHHI")
-INDEX_ENTRY = struct.Struct("<II")
+MAGIC = b"BAP2"
+HEADER = struct.Struct("<4sHHHHHI")
+CHUNK_ENTRY = struct.Struct("<II")
 
 
 class FrameStore:
-    """Read independently compressed monochrome frames from memory."""
+    """Read 1-bit frames from a chunked, LZMA2-compressed asset.
+
+    A chunk holds several raw frames, so the compressor still sees the frames
+    that belong together while the player only has to unpack one chunk every
+    few frames instead of the whole animation at once. The chunk is read and
+    decompressed on the first frame that needs it and then reused.
+    """
 
     def __init__(self, path):
         self.file = open(path, "rb")
+        self.chunk_index = -1
+        self.chunk_data = b""
+        try:
+            self._load_index()
+        except Exception:
+            self.close()
+            raise
+
+    def _load_index(self):
         header = self.file.read(HEADER.size)
         if len(header) != HEADER.size:
-            self.close()
             raise ValueError("Bad Apple frame asset has a truncated header")
 
-        magic, self.width, self.height, self.fps_num, self.fps_den, self.count = (
-            HEADER.unpack(header)
-        )
-        if magic != MAGIC or self.fps_num == 0 or self.fps_den == 0:
-            self.close()
-            raise ValueError("Bad Apple frame asset has an invalid header")
-        if self.count == 0:
-            self.close()
+        (magic, self.width, self.height, self.fps_num, self.fps_den,
+         self.chunk_frames, self.count) = HEADER.unpack(header)
+        if magic != MAGIC:
+            raise ValueError("Bad Apple frame asset has an unknown format")
+        if self.fps_num == 0 or self.fps_den == 0:
+            raise ValueError("Bad Apple frame asset has an invalid frame rate")
+        if self.count == 0 or self.chunk_frames == 0:
             raise ValueError("Bad Apple frame asset contains no frames")
 
         self.row_bytes = (self.width + 7) // 8
         self.frame_bytes = self.row_bytes * self.height
+        self.chunk_count = (
+            self.count + self.chunk_frames - 1
+        ) // self.chunk_frames
+
         self.index = []
-        for _ in range(self.count):
-            entry = self.file.read(INDEX_ENTRY.size)
-            if len(entry) != INDEX_ENTRY.size:
+        for _ in range(self.chunk_count):
+            entry = self.file.read(CHUNK_ENTRY.size)
+            if len(entry) != CHUNK_ENTRY.size:
                 self.close()
                 raise ValueError("Bad Apple frame asset has a truncated index")
-            self.index.append(INDEX_ENTRY.unpack(entry))
+            self.index.append(CHUNK_ENTRY.unpack(entry))
 
-        # The compressed payload is only about 3 MB. Keeping it in memory
-        # removes one seek/read pair from every displayed frame.
-        self.payload = self.file.read()
-        self.close()
+        self.payload_offset = HEADER.size + CHUNK_ENTRY.size * self.chunk_count
+        file_size = self.file.seek(0, 2) - self.payload_offset
         for offset, length in self.index:
-            if offset + length > len(self.payload):
+            if offset + length > file_size:
                 raise ValueError("Bad Apple frame asset has an invalid index")
 
     @property
@@ -58,12 +73,26 @@ class FrameStore:
         return self.fps_num / self.fps_den
 
     def read(self, frame_number):
-        offset, length = self.index[frame_number]
-        compressed = self.payload[offset:offset + length]
-        frame = zlib.decompress(compressed)
-        if len(frame) != self.frame_bytes:
-            raise ValueError("Bad Apple frame asset contains an invalid frame")
-        return frame
+        chunk = frame_number // self.chunk_frames
+        if chunk != self.chunk_index:
+            self._load_chunk(chunk)
+        start = (frame_number % self.chunk_frames) * self.frame_bytes
+        return self.chunk_data[start:start + self.frame_bytes]
+
+    def _load_chunk(self, chunk):
+        offset, length = self.index[chunk]
+        self.file.seek(self.payload_offset + offset)
+        compressed = self.file.read(length)
+        if len(compressed) != length:
+            raise ValueError("Bad Apple frame asset is truncated")
+
+        data = lzma.decompress(compressed)
+        frames = min(self.chunk_frames,
+                     self.count - chunk * self.chunk_frames)
+        if len(data) != frames * self.frame_bytes:
+            raise ValueError("Bad Apple frame asset contains an invalid chunk")
+        self.chunk_data = data
+        self.chunk_index = chunk
 
     def close(self):
         if getattr(self, "file", None) is not None:

@@ -9,15 +9,33 @@ exit.
 
 ## Asset Format
 
-`assets/frames.bin` contains 240x180, 30 FPS, 1-bit frames. Each frame is
-compressed independently with zlib and has an index entry, so the player can
-seek to the frame matching the current playback time instead of decoding a
-video stream on the device.
+`assets/frames.bin` is a `BAP2` container holding 240x180, 30 FPS, 1-bit frames
+(6572 of them, about 3 minutes 39 seconds). Frames are packed in chunks of 32
+and every chunk is compressed on its own with LZMA2. Grouping frames before
+compressing is what keeps the asset small: the 33.8 MiB of raw bitmaps shrink
+to 1.6 MiB, while compressing each frame in isolation needs 2.9 MiB because it
+cannot see the neighbouring frames.
 
-At startup, the compressed payload is loaded into memory to avoid per-frame
-file seeks. The player precomputes the crop and scale mappings, then uses
-horizontal runs for unrotated framebuffers and vertical runs for the usual
-90/270-degree framebuffer orientations.
+At startup the player reads the header and the chunk table. It then unpacks
+only the chunk that holds the frame it is about to draw and reuses it for the
+rest of that chunk, so displaying a frame costs at most one ~170 KiB chunk
+instead of the whole animation. The player precomputes the crop and scale
+mappings, then uses horizontal runs for unrotated framebuffers and vertical
+runs for the usual 90/270-degree framebuffer orientations.
+
+### Regenerating the asset
+
+Frames are packed from binary PBM images. ffmpeg's `monob` pixel format
+produces the 1-bit ordered-dither look the App renders:
+
+```sh
+ffmpeg -i bad-apple.mp4 -vf "fps=30,scale=240:180,format=monob" frames/%06d.pbm
+tools/pack_frames.py --output assets/frames.bin --fps 30 frames/*.pbm
+```
+
+`tools/pack_frames.py` documents the container layout and accepts any PBM `P4`
+frames that share one size, so the animation can also be re-cut at another
+resolution or frame rate.
 
 ## Source
 
